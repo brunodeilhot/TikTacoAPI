@@ -1,0 +1,62 @@
+import { model } from 'mongoose';
+import { Schema } from 'mongoose';
+
+
+const RecipeSchema = new Schema({
+    title: {
+        type: String,
+        required: [true, 'Title is required'],
+        maxLength: [50, 'Title cannot be longer than 50 characters']
+    },
+    description: {
+        type: String,
+        maxLength: [250, 'Description cannot be longer than 250 characters']
+    },
+    picture: {
+        type: String,
+        match: /([^\\s]+(\\.(?i)(jpe?g|png|gif|bmp))$)/,
+        unique: true,
+    },
+    diet: [{ type: String, enum: ['gf', 'df', 'v', 'vv', 'k']}],
+    servings: {
+        type: Number,
+        required: [true, 'Servings are required']
+    },
+    time: {
+        type: Number,
+        required: [true, 'Time is required']
+    },
+    steps: {
+        type: [String],
+        required: [true, 'Steps are required']
+    },
+    ingredients: {
+        type: [{
+            type: Object,
+            name: String,
+            quantity: String
+        }],
+        required: [true, 'Ingredients are required']
+    },
+    created_at: {
+        type: Date,
+        default: Date.now
+    },
+    edited_at: {
+        type: Date
+    },
+    meta: {
+        likes: Number,
+        favorites: Number,
+        views: Number
+    },
+    user: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    }
+});
+
+const Recipe = model('Recipe', RecipeSchema);
+
+export default Recipe;
