@@ -14,6 +14,7 @@ const RecipeSchema = new Schema({
     type: String,
     match: /([^\\s]+(\\.(?i)(jpe?g|png|gif|bmp))$)/,
     unique: true,
+    required: [true, "Picture is required"],
   },
   diet: [{ type: String, enum: ["gf", "df", "v", "vv", "k"] }],
   servings: {

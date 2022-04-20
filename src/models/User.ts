@@ -44,6 +44,7 @@ const UserSchema = new Schema({
   },
   meta: {
     rec_liked: [String],
+    lkes: Number,
     followers: [String],
     following: [String],
   },
