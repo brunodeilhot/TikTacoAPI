@@ -9,8 +9,8 @@ export default async (req: Request, res: Response) => {
     .catch((e) => {
       return { status: 400, data: e };
     })
-    .then((user) => {
-      return { status: 200, data: user };
+    .then((response) => {
+      return { status: 200, data: response };
     });
 
   return res.status(user.status).json(user.data);

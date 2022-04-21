@@ -49,7 +49,7 @@ export const updateProfile = async (
   picture?: string,
   bio?: string
 ) => {
-  const user: any = User.findById(id);
+  const user: any = await User.findById(id);
   user.username = username;
   user.name = name !== undefined ? name : user.name;
   user.birthday = birthday !== undefined ? birthday : user.birthday;
@@ -65,7 +65,7 @@ export const updateProfile = async (
 export const findByEmail = async (email: string) => User.findOne({ email });
 
 export const findById = async (id: string) => {
-  const user: any = User.findById(id);
+  const user: any = await User.findById(id);
 
   const { name, username, picture, bio, meta } = user;
 
