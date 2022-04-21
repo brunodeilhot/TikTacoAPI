@@ -12,7 +12,7 @@ const RecipeSchema = new Schema({
   },
   picture: {
     type: String,
-    match: /([^\\s]+(\\.(?i)(jpe?g|png|gif|bmp))$)/,
+    match: [/\.(gif|jpe?g|tiff?|png|webp|bmp)$/i , "File extension not allowed"],
     unique: true,
     required: [true, "Picture is required"],
   },
