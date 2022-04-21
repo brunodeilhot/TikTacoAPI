@@ -19,17 +19,17 @@ export default async (req: Request, res: Response) => {
 
   const newRecipe = await create(
     title,
-    description,
     picture,
-    diet,
     servings,
     time,
-    steps,
     ingredients,
+    steps,
+    user,
+    description,
+    diet,
     created_at,
     edited_at,
-    meta,
-    user
+    meta
   )
     .catch((e) => {
       return { status: 400, data: e };

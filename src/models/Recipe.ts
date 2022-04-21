@@ -12,7 +12,7 @@ const RecipeSchema = new Schema({
   },
   picture: {
     type: String,
-    match: [/\.(gif|jpe?g|tiff?|png|webp|bmp)$/i , "File extension not allowed"],
+    match: [/([A-Z0-9\s_\\.\-\(\):])+(.jpe?g|.png|.gif)$/i , "File extension not allowed"],
     unique: true,
     required: [true, "Picture is required"],
   },
@@ -30,13 +30,7 @@ const RecipeSchema = new Schema({
     required: [true, "Steps are required"],
   },
   ingredients: {
-    type: [
-      {
-        type: Object,
-        name: String,
-        quantity: String,
-      },
-    ],
+    type: [{ name: String, quantity: String }],
     required: [true, "Ingredients are required"],
   },
   created_at: {

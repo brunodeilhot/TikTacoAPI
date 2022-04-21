@@ -5,7 +5,7 @@ const { create, feed, findByUser, getTotalLikes  } = actions;
 
 const router = Router();
 
-router.post("create", create);
+router.post("/create", create);
 
 router.get("/find/:user/:limit", findByUser);
 

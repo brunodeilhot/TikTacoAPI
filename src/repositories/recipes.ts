@@ -47,7 +47,7 @@ export const findByUser = async (userId: string, limit: number) =>
   Recipe.find({ user: userId }).limit(limit);
 
 export const feedRecipes = async (limit: number) =>
-  Recipe.find().limit(limit).sort("+created_at");
+  Recipe.find().limit(limit).sort("-created_at");
 
 export const getTotalLikes = async (userId: string) => {
   const recipes: any = Recipe.find({ user: userId }).select("meta.likes");
