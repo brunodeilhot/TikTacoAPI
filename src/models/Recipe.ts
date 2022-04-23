@@ -9,7 +9,7 @@ const RecipeSchema = new Schema({
   description: {
     type: String,
     maxLength: [250, "Description cannot be longer than 250 characters"],
-    default: ""
+    default: null
   },
   picture: {
     type: String,
@@ -31,7 +31,7 @@ const RecipeSchema = new Schema({
     required: [true, "Steps are required"],
   },
   ingredients: {
-    type: [{ name: String, quantity: String }],
+    type: [{ type: Object, name: String, quantity: String }],
     required: [true, "Ingredients are required"],
   },
   created_at: {
@@ -40,7 +40,7 @@ const RecipeSchema = new Schema({
   },
   edited_at: {
     type: Date,
-    default: Date.now,
+    default: null,
   },
   meta: {
     likes: {

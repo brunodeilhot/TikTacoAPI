@@ -15,11 +15,11 @@ export default async (req: Request, res: Response) => {
     created_at,
     meta
   )
-    .catch((e) => {
-      return { status: 400, data: e };
-    })
     .then((user) => {
       return { status: 201, data: user };
+    })
+    .catch((e) => {
+      return { status: 400, data: e };
     });
 
   return res.status(newUser.status).json(newUser.data);

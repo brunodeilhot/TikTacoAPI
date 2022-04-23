@@ -15,7 +15,7 @@ const UserSchema = new Schema({
   },
   birthday: {
     type: Date,
-    default: "",
+    default: null,
   },
   username: {
     type: String,
@@ -31,12 +31,12 @@ const UserSchema = new Schema({
       "File type is invalid",
     ],
     unique: true,
-    default: "",
+    default: null,
   },
   bio: {
     type: String,
     maxLength: [250, "Bio cannot be longer than 250 characters"],
-    default: "",
+    default: null,
   },
   created_at: {
     type: Date,
@@ -61,8 +61,14 @@ const UserSchema = new Schema({
       type: Number,
       default: 0,
     },
-    followers: [String],
-    following: [String],
+    followers: [{
+      type: Schema.Types.ObjectId,
+      ref: "User"
+    }],
+    following: [{
+      type: Schema.Types.ObjectId,
+      ref: "User"
+    }],
   },
 });
 

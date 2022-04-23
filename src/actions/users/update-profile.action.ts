@@ -6,11 +6,11 @@ export default async (req: Request, res: Response) => {
   const id = req.params.id;
 
   const user = await updateProfile(id, username, name, birthday, picture, bio)
-    .catch((e) => {
-      return { status: 400, data: e };
-    })
     .then((response) => {
       return { status: 200, data: response };
+    })
+    .catch((e) => {
+      return { status: 400, data: e };
     });
 
   return res.status(user.status).json(user.data);

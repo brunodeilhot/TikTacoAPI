@@ -31,11 +31,11 @@ export default async (req: Request, res: Response) => {
     edited_at,
     meta
   )
-    .catch((e) => {
-      return { status: 400, data: e };
-    })
     .then((recipe) => {
       return { status: 201, data: recipe };
+    })
+    .catch((e) => {
+      return { status: 400, data: e };
     });
 
   return res.status(newRecipe.status).json(newRecipe.data);

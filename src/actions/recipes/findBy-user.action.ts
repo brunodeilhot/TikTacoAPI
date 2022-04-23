@@ -6,11 +6,11 @@ export default async (req: Request, res: Response) => {
   const limit = req.params.limit;
 
   const recipe = await findByUser(user, parseInt(limit))
-    .catch((e) => {
-      return { status: 400, data: e };
-    })
     .then((response) => {
       return { status: 200, data: response };
+    })
+    .catch((e) => {
+      return { status: 400, data: e };
     });
 
   return res.status(recipe.status).json(recipe.data);
