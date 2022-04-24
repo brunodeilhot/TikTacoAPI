@@ -1,10 +1,11 @@
 import { Request, Response } from "express";
-import { getTotalLikes } from "../../repositories/recipes";
+import { totalLikes } from "../../repositories/users";
+
 
 export default async (req: Request, res: Response) => {
-  const user = req.params.user;
+  const id = req.params.id;
 
-  const totalLikes = await getTotalLikes(user)
+  const likes = await totalLikes(id)
     .then((response) => {
       return { status: 200, data: response };
     })
@@ -12,5 +13,5 @@ export default async (req: Request, res: Response) => {
       return { status: 400, data: e };
     });
 
-  return res.status(totalLikes.status).json(totalLikes.data);
+  return res.status(likes.status).json(likes.data);
 };

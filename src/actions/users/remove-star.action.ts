@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
-import { addLike } from "../../repositories/recipes";
+import { removeStar } from "../../repositories/users";
 
 export default async (req: Request, res: Response) => {
   const id = req.params.id;
-  const userId = req.params.userId;
+  const recipeId = req.params.recipeId;
 
-  const status = await addLike(id, userId)
+  const status = await removeStar(id, recipeId)
     .then(() => 200)
     .catch(() => 400);
 

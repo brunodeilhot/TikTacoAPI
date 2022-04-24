@@ -1,11 +1,12 @@
 import { Request, Response } from "express";
-import { findByUser } from "../../repositories/recipes";
+import { findById } from "../../repositories/recipes";
 
 export default async (req: Request, res: Response) => {
+  const id = req.params.id;
   const userId = req.params.userId;
-  const limit = req.params.limit;
+  const access = req.params.access;
 
-  const recipe = await findByUser(userId, parseInt(limit))
+  const recipe = await findById(id, userId, access)
     .then((response) => {
       return { status: 200, data: response };
     })

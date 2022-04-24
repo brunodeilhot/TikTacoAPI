@@ -57,10 +57,12 @@ const UserSchema = new Schema({
           ref: "Recipe"
         },
       ],
-    likes: {
-      type: Number,
-      default: 0,
-    },
+    rec_starred: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Recipe"
+      },
+    ],
     followers: [{
       type: Schema.Types.ObjectId,
       ref: "User"
@@ -70,6 +72,10 @@ const UserSchema = new Schema({
       ref: "User"
     }],
   },
+  deleted: {
+    type: Boolean,
+    default: false,
+  }
 });
 
 const User = model("User", UserSchema);

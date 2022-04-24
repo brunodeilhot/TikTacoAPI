@@ -11,9 +11,6 @@ export default async (req: Request, res: Response) => {
     time,
     steps,
     ingredients,
-    created_at,
-    edited_at,
-    meta,
     user,
   } = req.body;
 
@@ -26,10 +23,7 @@ export default async (req: Request, res: Response) => {
     steps,
     user,
     description,
-    diet,
-    created_at,
-    edited_at,
-    meta
+    diet
   )
     .then((recipe) => {
       return { status: 201, data: recipe };

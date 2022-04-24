@@ -9,11 +9,14 @@ const RecipeSchema = new Schema({
   description: {
     type: String,
     maxLength: [250, "Description cannot be longer than 250 characters"],
-    default: null
+    default: null,
   },
   picture: {
     type: String,
-    match: [/([A-Z0-9\s_\\.\-\(\):])+(.jpe?g|.png|.gif)$/i , "File extension not allowed"],
+    match: [
+      /([A-Z0-9\s_\\.\-\(\):])+(.jpe?g|.png|.gif)$/i,
+      "File extension not allowed",
+    ],
     unique: true,
     required: [true, "Picture is required"],
   },
@@ -43,18 +46,24 @@ const RecipeSchema = new Schema({
     default: null,
   },
   meta: {
-    likes: {
-      type: Number,
-      default: 0
-    },
-    favorites: {
-      type: Number,
-      default: 0
-    },
-    views: {
-      type: Number,
-      default: 0
-    },
+    likes: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        unique: true,
+      },
+    ],
+    views: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        unique: true,
+      },
+    ],
+  },
+  deleted: {
+    type: Boolean,
+    default: false,
   },
   user: {
     type: Schema.Types.ObjectId,

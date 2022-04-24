@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { create } from "../../repositories/users";
 
 export default async (req: Request, res: Response) => {
-  const { name, email, username, birthday, picture, bio, created_at, meta } =
+  const { name, email, username, birthday, picture, bio } =
     req.body;
 
   const newUser = await create(
@@ -11,9 +11,7 @@ export default async (req: Request, res: Response) => {
     username,
     birthday,
     picture,
-    bio,
-    created_at,
-    meta
+    bio
   )
     .then((user) => {
       return { status: 201, data: user };

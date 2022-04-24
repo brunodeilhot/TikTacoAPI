@@ -5,9 +5,9 @@ export default async (req: Request, res: Response) => {
   const id = req.params.id;
   const userId = req.params.userId;
 
-  const updateMeta = await removeLike(id, userId)
+  const status = await removeLike(id, userId)
     .then(() => 200)
     .catch(() => 400);
 
-  return res.sendStatus(updateMeta);
+  return res.sendStatus(status);
 };

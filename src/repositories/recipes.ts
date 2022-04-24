@@ -8,7 +8,7 @@ interface Iingredients {
 
 interface Imeta {
   likes: number;
-  favorites: number;
+  stars: number;
   views: number;
 }
 
@@ -21,10 +21,7 @@ export const create = async (
   steps: Array<string>,
   user: string,
   description?: string,
-  diet?: Array<string>,
-  created_at?: Date,
-  edited_at?: Date,
-  meta?: Imeta
+  diet?: Array<string>
 ) => {
   return Recipe.create({
     title,
@@ -36,9 +33,6 @@ export const create = async (
     user,
     description,
     diet,
-    created_at,
-    edited_at,
-    meta,
   });
 };
 
@@ -52,66 +46,122 @@ export const update = async (
   steps: Array<string>,
   description?: string,
   diet?: Array<string>
-  ) => {
+) => {
   const recipe: any = await Recipe.findById(id);
 
-  recipe.title = title;
-  recipe.picture = picture;
-  recipe.servings = servings;
-  recipe.time = time;
-  recipe.ingredients = ingredients;
-  recipe.steps = steps;
-  recipe.description = description !== undefined ? description : recipe.description;
+  recipe.title = title !== undefined ? title : recipe.title;
+  recipe.picture = picture !== undefined ? picture : recipe.picture;
+  recipe.servings = servings !== undefined ? servings : recipe.servings;
+  recipe.time = time !== undefined ? time : recipe.time;
+  recipe.ingredients =
+    ingredients !== undefined ? ingredients : recipe.ingredients;
+  recipe.steps = steps !== undefined ? steps : recipe.steps;
+  recipe.description =
+    description !== undefined ? description : recipe.description;
   recipe.diet = diet !== undefined ? diet : recipe.diet;
+  recipe.edited_at = Date.now();
 
   await recipe.save();
   return recipe;
-}
+};
 
-export const addLike = async (id: string, userId: string) => {
-  const user: any = await User.findById(userId);
+export const findByUser = async (userId: string, limit: number) => {
+  const recipes = await Recipe.find({ user: userId })
+    .select(["picture", "meta.views"])
+    .limit(limit)
+    .sort("-created_at");
+
+  recipes.forEach((recipe) => (recipe.meta.views = recipe.meta.views.length));
+
+  return recipes;
+};
+
+export const feedRecipes = async (limit: number) => {
+  const recipes = await Recipe.find()
+    .select(["_id", "title", "picture", "meta", "user"])
+    .limit(limit)
+    .sort("-created_at");
+
+  recipes.forEach((recipe) => {
+    recipe.meta.views = recipe.meta.views.length;
+    recipe.meta.likes = recipe.meta.likes.length;
+  });
+
+  return recipes;
+};
+
+export const findById = async (id: string, userId: string, access: string) => {
   const recipe: any = await Recipe.findById(id);
 
-  if (user.meta.rec_liked.indexOf(id) !== -1) {
-    throw new Error('Recipe already liked')
-  }
-    user.meta.rec_liked.push(id);
-    await user.save();
+  if (recipe === null) throw new Error("Bad Request");
 
-    recipe.meta.likes = recipe.meta.likes + 1;
-    await recipe.save();
+  if (recipe.meta.views.indexOf(userId) === -1) {
+    recipe.meta.views.push(userId);
+    recipe.save();
+  }
+
+  recipe.meta.views = recipe.meta.views.length;
+
+  if (access === "public") {
+    recipe.meta.likes = recipe.meta.likes.length;
+
+    return recipe;
+  }
+
+  return recipe;
+};
+
+/*
+  Meta data manipulation
+*/
+
+export const addLike = async (id: string, userId: string) => {
+  const recipe: any = await Recipe.findById(id);
+  const user: any = await User.findById(userId);
+
+  if (user === null || recipe === null) {
+    throw new Error("Bad Request");
+  }
+
+  if (user.meta.rec_liked.indexOf(id) !== -1) {
+    throw new Error("Recipe already liked");
+  }
+
+  user.meta.rec_liked.push(id);
+  await user.save();
+
+  recipe.meta.likes.push(userId);
+  await recipe.save();
 };
 
 export const removeLike = async (id: string, userId: string) => {
-  const user: any = await User.findById(userId);
   const recipe: any = await Recipe.findById(id);
+  const user: any = await User.findById(userId);
 
-  if (user.meta.rec_liked.indexOf(id) === -1) {
-    throw new Error('Recipe not liked')
+  if (user === null || recipe === null) {
+    throw new Error("Bad Request");
   }
 
-  const i = user.meta.rec_liked.indexOf(id)
+  if (user.meta.rec_liked.indexOf(id) === -1) {
+    throw new Error("Recipe not liked");
+  }
+
+  const i = user.meta.rec_liked.indexOf(id);
   user.meta.rec_liked.splice(i, 1);
   await user.save();
 
-  recipe.meta.likes = recipe.meta.likes - 1;
+  const k = recipe.meta.likes.indexOf(userId);
+  recipe.meta.likes.splice(k, 1);
   await recipe.save();
-}
-
-export const findByUser = async (userId: string, limit: number) =>
-  Recipe.find({ user: userId }).limit(limit);
-
-export const feedRecipes = async (limit: number) =>
-  Recipe.find().limit(limit).sort("-created_at");
-
-export const getTotalLikes = async (userId: string) => {
-  const recipes: any = Recipe.find({ user: userId }).select("meta.likes");
-
-  return recipes.reduce((accumulator: number, value: number) => {
-    return accumulator + value;
-  }, 0);
 };
 
-const methods = { create, findByUser, feedRecipes, getTotalLikes };
+const methods = {
+  create,
+  update,
+  findByUser,
+  feedRecipes,
+  addLike,
+  removeLike,
+};
 
 export default methods;
