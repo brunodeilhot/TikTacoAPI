@@ -23,6 +23,10 @@ export const create = async (
   description?: string,
   diet?: Array<string>
 ) => {
+  const userExists = await User.findById(user);
+
+  if (userExists === null) throw new Error("User invalid");
+
   return Recipe.create({
     title,
     picture,

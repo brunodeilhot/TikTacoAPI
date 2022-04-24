@@ -18,11 +18,11 @@ const router = Router();
 router.post("/create", create);
 router.put("/update/:id", updateProfile);
 
-router.get("/:id/:type", findById);
-router.get("/find/:email", findByEmail);
+router.get("/find/:id", findById);
+router.get("/find/email/:email", findByEmail);
 
-router.get("/followers/:id/add/:userId", addFollower);
-router.get("/followers/:id/remove/:userId", removeFollower);
+router.put("/followers/:id/add/:userId", addFollower);
+router.put("/followers/:id/remove/:userId", removeFollower);
 
 router.get("/meta/likes/total/:id", totalLikes);
 router.put("/meta/stars/:id/add/:recipeId", addStar);

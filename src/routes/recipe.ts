@@ -9,7 +9,7 @@ const router = Router();
 router.post("/create", create);
 router.put("/update/:id", update);
 
-router.get("/:id/:userId/:access", findById);
+router.get("/find/:id/:userId/:access", findById);
 router.get("/find/:userId/:limit", findByUser);
 
 router.get("/feed/:limit", feed);

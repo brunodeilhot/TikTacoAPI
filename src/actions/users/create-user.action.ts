@@ -17,7 +17,7 @@ export default async (req: Request, res: Response) => {
       return { status: 201, data: user };
     })
     .catch((e) => {
-      return { status: 400, data: e };
+      return { status: 400, data: [e.message, e] };
     });
 
   return res.status(newUser.status).json(newUser.data);

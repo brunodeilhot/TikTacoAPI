@@ -10,7 +10,7 @@ export default async (req: Request, res: Response) => {
       return { status: 200, data: response };
     })
     .catch((e) => {
-      return { status: 400, data: e };
+      return { status: 400, data: [e.message, e] };
     });
 
   return res.status(recipe.status).json(recipe.data);

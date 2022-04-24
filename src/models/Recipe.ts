@@ -17,7 +17,7 @@ const RecipeSchema = new Schema({
       /([A-Z0-9\s_\\.\-\(\):])+(.jpe?g|.png|.gif)$/i,
       "File extension not allowed",
     ],
-    unique: true,
+    unique: 'File name already in use',
     required: [true, "Picture is required"],
   },
   diet: [{ type: String, enum: ["gf", "df", "v", "vv", "k"] }],
@@ -46,20 +46,8 @@ const RecipeSchema = new Schema({
     default: null,
   },
   meta: {
-    likes: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "User",
-        unique: true,
-      },
-    ],
-    views: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "User",
-        unique: true,
-      },
-    ],
+    likes: [String],
+    views: [String],
   },
   deleted: {
     type: Boolean,

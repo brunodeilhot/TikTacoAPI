@@ -3,7 +3,6 @@ import express from "express";
 import mongoose from "mongoose";
 import routes from "./routes/index";
 
-
 dotenv.config();
 
 const app = express();
@@ -13,6 +12,7 @@ app.use(express.json());
 app.use(routes);
 
 const database = process.env.MONGODB_URL || "";
+
 
 mongoose.connect(database);
 

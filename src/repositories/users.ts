@@ -66,7 +66,9 @@ export const findById = async (id: string) => {
 
   const { name, username, picture, bio, meta } = user;
 
-  return { name, username, picture, bio, meta };
+  const { followers, following } = meta;
+
+  return { name, username, picture, bio, followers, following };
 };
 
 export const addFollower = async (id: string, userId: string) => {
