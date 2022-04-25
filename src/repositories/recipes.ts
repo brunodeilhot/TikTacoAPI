@@ -42,12 +42,12 @@ export const create = async (
 
 export const update = async (
   id: string,
-  title: string,
-  picture: string,
-  servings: number,
-  time: number,
-  ingredients: Array<Iingredients>,
-  steps: Array<string>,
+  title?: string,
+  picture?: string,
+  servings?: number,
+  time?: number,
+  ingredients?: Array<Iingredients>,
+  steps?: Array<string>,
   description?: string,
   diet?: Array<string>
 ) => {
@@ -80,14 +80,19 @@ export const findByUser = async (userId: string, limit: number) => {
   return recipes;
 };
 
-export const feedRecipes = async (limit: number) => {
-  const recipes = await Recipe.find()
-    .select(["_id", "title", "picture", "meta", "user"])
+export const feedRecipes = async (limit: number, user?: string) => {
+
+  const meta = await User.findById(user).select("meta.following");
+
+  const filter = user !== undefined ? { user: meta.meta.following } : {};
+
+  const recipes = await Recipe.find(filter)
+    .select(["_id", "title", "picture", "meta.likes"])
+    .populate("user", "_id picture username")
     .limit(limit)
     .sort("-created_at");
 
   recipes.forEach((recipe) => {
-    recipe.meta.views = recipe.meta.views.length;
     recipe.meta.likes = recipe.meta.likes.length;
   });
 
@@ -95,7 +100,10 @@ export const feedRecipes = async (limit: number) => {
 };
 
 export const findById = async (id: string, userId: string, access: string) => {
-  const recipe: any = await Recipe.findById(id);
+  const recipe: any = await Recipe.findById(id).populate(
+    "user",
+    "_id username"
+  );
 
   if (recipe === null) throw new Error("Bad Request");
 
@@ -104,15 +112,40 @@ export const findById = async (id: string, userId: string, access: string) => {
     recipe.save();
   }
 
-  recipe.meta.views = recipe.meta.views.length;
+  const {
+    _id,
+    title,
+    description,
+    picture,
+    diet,
+    servings,
+    time,
+    ingredients,
+    steps,
+    deleted,
+    created_at,
+    user,
+    meta,
+  } = recipe;
 
-  if (access === "public") {
-    recipe.meta.likes = recipe.meta.likes.length;
-
-    return recipe;
-  }
-
-  return recipe;
+  return {
+    _id,
+    title,
+    description,
+    picture,
+    diet,
+    servings,
+    time,
+    ingredients,
+    steps,
+    deleted,
+    created_at,
+    user,
+    meta: {
+      totalLikes: access !== "private" ? meta.likes.length : meta.likes,
+      totalViews: meta.views.length,
+    },
+  };
 };
 
 /*

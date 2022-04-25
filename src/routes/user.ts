@@ -22,10 +22,10 @@ router.get("/find/:id", findById);
 router.get("/find/email/:email", findByEmail);
 
 router.put("/followers/:id/add/:userId", addFollower);
-router.put("/followers/:id/remove/:userId", removeFollower);
+router.delete("/followers/:id/remove/:userId", removeFollower);
 
 router.get("/meta/likes/total/:id", totalLikes);
 router.put("/meta/stars/:id/add/:recipeId", addStar);
-router.put("/meta/stars/:id/remove/:recipeId", removeStar);
+router.delete("/meta/stars/:id/remove/:recipeId", removeStar);
 
 export default router;

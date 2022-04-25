@@ -42,14 +42,14 @@ export const create = async (
 
 export const updateProfile = async (
   id: string,
-  username: string,
+  username?: string,
   name?: string,
   birthday?: Date,
   picture?: string,
   bio?: string
 ) => {
   const user: any = await User.findById(id);
-  user.username = username;
+  user.username = username !== undefined ? username : user.username;
   user.name = name !== undefined ? name : user.name;
   user.birthday = birthday !== undefined ? birthday : user.birthday;
   user.picture = picture !== undefined ? picture : user.picture;

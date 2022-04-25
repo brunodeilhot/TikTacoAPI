@@ -6,8 +6,12 @@ export default async (req: Request, res: Response) => {
   const userId = req.params.userId;
 
   const status = await removeLike(id, userId)
-    .then(() => 200)
-    .catch(() => 400);
+    .then(() => {
+      return { code: 200, message: "Recipe like removed" };
+    })
+    .catch((e) => {
+      return { code: 400, message: e.message };
+    });
 
-  return res.sendStatus(status);
+  return res.status(status.code).json(status.message);
 };

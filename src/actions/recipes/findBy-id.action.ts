@@ -5,7 +5,7 @@ export default async (req: Request, res: Response) => {
   const id = req.params.id;
   const userId = req.params.userId;
   const access = req.params.access;
-
+  
   const recipe = await findById(id, userId, access)
     .then((response) => {
       return { status: 200, data: response };
