@@ -1,10 +1,11 @@
 import { RequestHandler } from "express";
 
 const urlVerification: RequestHandler = async (req, res, next) => {
-    // console.log(req.baseUrl)
-    console.log("through here")
+  if (req.hostname !== "localhost") {
+    res.status(403).json("Access denied");
+  }
 
-    return next();
-}
+  return next();
+};
 
 export default urlVerification;
