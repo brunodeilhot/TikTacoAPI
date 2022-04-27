@@ -85,8 +85,8 @@ export const findByUser = async (userId: string, limit: number) => {
 };
 
 export const feedRecipes = async (limit: number, user?: string) => {
-  const meta = await User.findById(user).select("meta.following");
-  const followers = meta.meta.following.map((follower: IUserMeta) => follower.user);
+  const meta = user !== undefined ? await User.findById(user).select("meta.following") : null;
+  const followers =  user !== undefined ? meta.meta.following.map((follower: IUserMeta) => follower.user) : null;
 
   const filter = user !== undefined ? { user: followers } : {};
 
