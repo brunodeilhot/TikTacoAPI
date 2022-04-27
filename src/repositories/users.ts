@@ -1,25 +1,14 @@
 import Recipe from "../models/Recipe";
 import User from "../models/User";
 
-interface Iuser {
-  _id: string;
-  name: string;
-  email: string;
-  username: string;
-  birthday?: Date;
-  picture?: string;
-  bio?: string;
-  created_at?: Date;
-  meta?: Imeta;
+interface IUserMeta {
+  user: string;
+  date: Date;
 }
 
-interface Imeta {
-  rec_liked: Array<string>;
-  likes: number;
-  rec_starred: Array<string>;
-  stars: number;
-  followers: Array<string>;
-  following: Array<string>;
+interface IRecipeMeta {
+  recipe: string;
+  date: Date;
 }
 
 export const create = async (
@@ -40,7 +29,7 @@ export const create = async (
   });
 };
 
-export const updateProfile = async (
+export const update = async (
   id: string,
   username?: string,
   name?: string,
@@ -78,15 +67,15 @@ export const addFollower = async (id: string, userId: string) => {
   if (user === null || followUser === null) throw new Error("Bad Request");
 
   if (
-    user.meta.following.indexOf(userId) !== -1 ||
-    followUser.meta.followers.indexOf(id) !== -1
+    user.meta.following.findIndex((u: IUserMeta) => u.user === userId) !== -1 ||
+    followUser.meta.followers.findIndex((u: IUserMeta) => u.user === id) !== -1
   )
     throw new Error("User already followed");
 
-  user.meta.following.push(userId);
+  user.meta.following.push({ user: userId, date: Date.now() });
   user.save();
 
-  followUser.meta.followers.push(id);
+  followUser.meta.followers.push({ user: id, date: Date.now() });
   followUser.save();
 };
 
@@ -97,16 +86,18 @@ export const removeFollower = async (id: string, userId: string) => {
   if (user === null || followUser === null) throw new Error("Bad Request");
 
   if (
-    user.meta.following.indexOf(userId) === -1 ||
-    followUser.meta.followers.indexOf(id) === -1
+    user.meta.following.findIndex((u: IUserMeta) => u.user === userId) === -1 ||
+    followUser.meta.followers.findIndex((u: IUserMeta) => u.user === id) === -1
   )
     throw new Error("User not followed");
 
-  const i = user.meta.following.indexOf(userId);
+  const i = user.meta.following.findIndex((u: IUserMeta) => u.user === userId);
   user.meta.following.splice(i, 1);
   user.save();
 
-  const k = followUser.meta.followers.indexOf(id);
+  const k = followUser.meta.followers.findIndex(
+    (u: IUserMeta) => u.user === id
+  );
   followUser.meta.followers.splice(k, 1);
   followUser.save();
 };
@@ -129,10 +120,14 @@ export const addStar = async (id: string, recipeId: string) => {
 
   if (user === null) throw new Error("Bad Request");
 
-  if (user.meta.rec_starred.indexOf(recipeId) !== -1)
+  if (
+    user.meta.rec_starred.findIndex(
+      (r: IRecipeMeta) => r.recipe === recipeId
+    ) !== -1
+  )
     throw new Error("Recipe already starred");
 
-  user.meta.rec_starred.push(recipeId);
+  user.meta.rec_starred.push({ recipe: recipeId, date: Date.now() });
   await user.save();
 };
 
@@ -141,14 +136,30 @@ export const removeStar = async (id: string, recipeId: string) => {
 
   if (user === null) throw new Error("Bad Request");
 
-  if (user.meta.rec_starred.indexOf(recipeId) === -1)
+  if (
+    user.meta.rec_starred.findIndex(
+      (r: IRecipeMeta) => r.recipe === recipeId
+    ) === -1
+  )
     throw new Error("Recipe not starred");
 
-  const i = user.meta.rec_starred.indexOf(recipeId);
+  const i = user.meta.rec_starred.findIndex(
+    (r: IRecipeMeta) => r.recipe === recipeId
+  );
   user.meta.rec_starred.splice(i, 1);
   await user.save();
 };
 
-const methods = { create, updateProfile, findByEmail, addStar, removeStar };
+const methods = {
+  create,
+  update,
+  findByEmail,
+  findById,
+  addStar,
+  removeStar,
+  totalLikes,
+  addFollower,
+  removeFollower,
+};
 
 export default methods;

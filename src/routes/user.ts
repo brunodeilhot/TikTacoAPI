@@ -3,7 +3,7 @@ import actions from "../actions/users";
 
 const {
   create,
-  updateProfile,
+  update,
   findByEmail,
   findById,
   addStar,
@@ -16,7 +16,7 @@ const {
 const router = Router();
 
 router.post("/create", create);
-router.put("/update/:id", updateProfile);
+router.put("/update/:id", update);
 
 router.get("/find/:id", findById);
 router.get("/find/email/:email", findByEmail);

@@ -46,8 +46,16 @@ const RecipeSchema = new Schema({
     default: null,
   },
   meta: {
-    likes: [String],
-    views: [String],
+    likes: [{
+      type: Object,
+      user: String,
+      date: Date
+    }],
+    views: [{
+      type: Object,
+      user: String,
+      date: Date
+    }],
   },
   deleted: {
     type: Boolean,

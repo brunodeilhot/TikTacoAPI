@@ -6,10 +6,14 @@ interface Iingredients {
   quantity: string;
 }
 
-interface Imeta {
-  likes: number;
-  stars: number;
-  views: number;
+interface IUserMeta {
+  user: string;
+  date: Date;
+}
+
+interface IRecipeMeta {
+  recipe: string;
+  date: Date;
 }
 
 export const create = async (
@@ -81,10 +85,10 @@ export const findByUser = async (userId: string, limit: number) => {
 };
 
 export const feedRecipes = async (limit: number, user?: string) => {
-
   const meta = await User.findById(user).select("meta.following");
+  const followers = meta.meta.following.map((follower: IUserMeta) => follower.user);
 
-  const filter = user !== undefined ? { user: meta.meta.following } : {};
+  const filter = user !== undefined ? { user: followers } : {};
 
   const recipes = await Recipe.find(filter)
     .select(["_id", "title", "picture", "meta.likes"])
@@ -107,8 +111,8 @@ export const findById = async (id: string, userId: string, access: string) => {
 
   if (recipe === null) throw new Error("Bad Request");
 
-  if (recipe.meta.views.indexOf(userId) === -1) {
-    recipe.meta.views.push(userId);
+  if (recipe.meta.views.findIndex((u: IUserMeta) => u.user === userId) === -1) {
+    recipe.meta.views.push({ user: userId, date: Date.now() });
     recipe.save();
   }
 
@@ -160,14 +164,17 @@ export const addLike = async (id: string, userId: string) => {
     throw new Error("Bad Request");
   }
 
-  if (user.meta.rec_liked.indexOf(id) !== -1) {
+  if (
+    user.meta.rec_liked.findIndex((r: IRecipeMeta) => r.recipe === id) !== -1 ||
+    recipe.meta.likes.findIndex((u: IUserMeta) => u.user === userId) !== -1
+  ) {
     throw new Error("Recipe already liked");
   }
 
-  user.meta.rec_liked.push(id);
+  user.meta.rec_liked.push({ recipe: id, date: Date.now() });
   await user.save();
 
-  recipe.meta.likes.push(userId);
+  recipe.meta.likes.push({ user: userId, date: Date.now() });
   await recipe.save();
 };
 
@@ -179,15 +186,18 @@ export const removeLike = async (id: string, userId: string) => {
     throw new Error("Bad Request");
   }
 
-  if (user.meta.rec_liked.indexOf(id) === -1) {
+  if (
+    user.meta.rec_liked.findIndex((r: IRecipeMeta) => r.recipe === id) === -1 ||
+    recipe.meta.likes.findIndex((u: IUserMeta) => u.user === userId) === -1
+  ) {
     throw new Error("Recipe not liked");
   }
 
-  const i = user.meta.rec_liked.indexOf(id);
+  const i = user.meta.rec_liked.findIndex((r: IRecipeMeta) => r.recipe === id);
   user.meta.rec_liked.splice(i, 1);
   await user.save();
 
-  const k = recipe.meta.likes.indexOf(userId);
+  const k = recipe.meta.likes.findIndex((u: IUserMeta) => u.user === userId);
   recipe.meta.likes.splice(k, 1);
   await recipe.save();
 };
@@ -197,6 +207,7 @@ const methods = {
   update,
   findByUser,
   feedRecipes,
+  findById,
   addLike,
   removeLike,
 };

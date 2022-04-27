@@ -51,10 +51,26 @@ const UserSchema = new Schema({
     default: false,
   },
   meta: {
-    rec_liked: [String],
-    rec_starred: [String],
-    followers: [String],
-    following: [String],
+    rec_liked: [{
+      type: Object,
+      recipe: String,
+      date: Date
+    }],
+    rec_starred: [{
+      type: Object,
+      recipe: String,
+      date: Date
+    }],
+    followers: [{
+      type: Object,
+      user: String,
+      date: Date
+    }],
+    following: [{
+      type: Object,
+      user: String,
+      date: Date
+    }],
   },
   deleted: {
     type: Boolean,
