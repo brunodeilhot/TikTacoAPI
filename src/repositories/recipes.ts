@@ -86,7 +86,7 @@ export const findByUser = async (userId: string, limit: number) => {
 
 export const feedRecipes = async (limit: number, user?: string) => {
   const meta = user !== undefined ? await User.findById(user).select("meta.following") : null;
-  const followers =  user !== undefined ? meta.meta.following.map((follower: IUserMeta) => follower.user) : null;
+  const followers = user !== undefined ? meta.meta.following.map((follower: IUserMeta) => follower.user) : null;
 
   const filter = user !== undefined ? { user: followers } : {};
 
@@ -103,7 +103,7 @@ export const feedRecipes = async (limit: number, user?: string) => {
   return recipes;
 };
 
-export const findById = async (id: string, userId: string, access: string) => {
+export const findById = async (id: string, userId: string) => {
   const recipe: any = await Recipe.findById(id).populate(
     "user",
     "_id username"
@@ -146,7 +146,7 @@ export const findById = async (id: string, userId: string, access: string) => {
     created_at,
     user,
     meta: {
-      totalLikes: access !== "private" ? meta.likes.length : meta.likes,
+      totalLikes: user.id !== userId ? meta.likes.length : meta.likes,
       totalViews: meta.views.length,
     },
   };
