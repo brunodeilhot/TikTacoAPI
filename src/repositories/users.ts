@@ -1,15 +1,5 @@
-import Recipe from "../models/Recipe";
-import User from "../models/User";
-
-interface IUserMeta {
-  user: string;
-  date: Date;
-}
-
-interface IRecipeMeta {
-  recipe: string;
-  date: Date;
-}
+import Recipe, { IRecipeMeta } from "../models/Recipe";
+import User, { IUser, IUserMeta } from "../models/User";
 
 export const create = async (
   name: string,
@@ -18,7 +8,7 @@ export const create = async (
   birthday?: Date,
   picture?: string,
   bio?: string
-) => {
+): Promise<IUser> => {
   return User.create({
     name,
     email,
@@ -36,8 +26,11 @@ export const update = async (
   birthday?: Date,
   picture?: string,
   bio?: string
-) => {
-  const user: any = await User.findById(id);
+): Promise<IUser> => {
+  const user = await User.findById(id);
+
+  if (user === null) throw new Error("Bad Request");
+
   user.username = username !== undefined ? username : user.username;
   user.name = name !== undefined ? name : user.name;
   user.birthday = birthday !== undefined ? birthday : user.birthday;
@@ -48,21 +41,31 @@ export const update = async (
   return user;
 };
 
-export const findByEmail = async (email: string) => User.findOne({ email });
+export const findByEmail = async (email: string): Promise<IUser> => {
+  const user = await User.findOne({ email });
 
-export const findById = async (id: string) => {
-  const user: any = await User.findById(id);
+  if (user === null) throw new Error("Bad Request");
 
-  const { name, username, picture, bio, meta } = user;
-
-  const { followers, following } = meta;
-
-  return { name, username, picture, bio, followers, following };
+  return user;
 };
 
-export const addFollower = async (id: string, userId: string) => {
-  const user: any = await User.findById(id);
-  const followUser: any = await User.findById(userId);
+export const findById = async (id: string): Promise<IUser> => {
+  const user = await User.findById(id).select([
+    "-email",
+    "-birthday",
+    "-created_at",
+    "-meta.rec_liked",
+    "-meta.rec_starred",
+  ]);
+
+  if (user === null) throw new Error("Bad Request");
+
+  return user;
+};
+
+export const addFollower = async (id: string, userId: string): Promise<void> => {
+  const user = await User.findById(id);
+  const followUser = await User.findById(userId);
 
   if (user === null || followUser === null) throw new Error("Bad Request");
 
@@ -72,14 +75,14 @@ export const addFollower = async (id: string, userId: string) => {
   )
     throw new Error("User already followed");
 
-  user.meta.following.push({ user: userId, date: Date.now() });
+  user.meta.following.push({ user: userId, date: new Date() });
   user.save();
 
-  followUser.meta.followers.push({ user: id, date: Date.now() });
+  followUser.meta.followers.push({ user: id, date: new Date() });
   followUser.save();
 };
 
-export const removeFollower = async (id: string, userId: string) => {
+export const removeFollower = async (id: string, userId: string): Promise<void> => {
   const user: any = await User.findById(id);
   const followUser: any = await User.findById(userId);
 
@@ -105,7 +108,7 @@ export const removeFollower = async (id: string, userId: string) => {
 /*
   Meta Data manipulation
 */
-export const totalLikes = async (id: string) => {
+export const totalLikes = async (id: string): Promise<number> => {
   const recipes = await Recipe.find({ user: id }).select(["_id", "meta.likes"]);
 
   if (recipes === null) throw new Error("Bad Request");
@@ -115,7 +118,7 @@ export const totalLikes = async (id: string) => {
   return recipes.reduce((acc, recipe) => acc + recipe.meta.likes.length, 0);
 };
 
-export const addStar = async (id: string, recipeId: string) => {
+export const addStar = async (id: string, recipeId: string): Promise<void> => {
   const user: any = await User.findById(id);
 
   if (user === null) throw new Error("Bad Request");
@@ -131,7 +134,7 @@ export const addStar = async (id: string, recipeId: string) => {
   await user.save();
 };
 
-export const removeStar = async (id: string, recipeId: string) => {
+export const removeStar = async (id: string, recipeId: string): Promise<void> => {
   const user: any = await User.findById(id);
 
   if (user === null) throw new Error("Bad Request");

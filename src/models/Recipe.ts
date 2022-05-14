@@ -1,6 +1,7 @@
 import { Schema, model } from "mongoose";
+import { IUser, IUserMeta } from "./User";
 
-const RecipeSchema = new Schema({
+const RecipeSchema: Schema = new Schema({
   title: {
     type: String,
     required: [true, "Title is required"],
@@ -17,7 +18,7 @@ const RecipeSchema = new Schema({
       /([A-Z0-9\s_\\.\-\(\):])+(.jpe?g|.png|.gif)$/i,
       "File extension not allowed",
     ],
-    unique: 'File name already in use',
+    unique: "File name already in use",
     required: [true, "Picture is required"],
   },
   diet: [{ type: String, enum: ["gf", "df", "v", "vv", "k"] }],
@@ -39,23 +40,27 @@ const RecipeSchema = new Schema({
   },
   created_at: {
     type: Date,
-    default: Date.now(),
+    default: Date.now,
   },
   edited_at: {
     type: Date,
     default: null,
   },
   meta: {
-    likes: [{
-      type: Object,
-      user: String,
-      date: Date
-    }],
-    views: [{
-      type: Object,
-      user: String,
-      date: Date
-    }],
+    likes: [
+      {
+        type: Object,
+        user: String,
+        date: Date,
+      },
+    ],
+    views: [
+      {
+        type: Object,
+        user: String,
+        date: Date,
+      },
+    ],
   },
   deleted: {
     type: Boolean,
@@ -68,6 +73,38 @@ const RecipeSchema = new Schema({
   },
 });
 
-const Recipe = model("Recipe", RecipeSchema);
+const Recipe = model<IRecipe>("Recipe", RecipeSchema);
+
+export interface IRecipe {
+  id: string;
+  title: string;
+  description?: string;
+  picture: string | undefined;
+  diet: string[];
+  servings: number;
+  time: number;
+  steps: string[];
+  ingredients: IIngredients[];
+  created_at: Date;
+  edited_at: Date | null;
+  meta: {
+    likes: IUserMeta[];
+    totalLikes: number;
+    views: IUserMeta[];
+    totalViews: number;
+  };
+  deleted: boolean;
+  user: IUser;
+}
+
+export interface IIngredients {
+  name: string;
+  quantity: string;
+}
+
+export interface IRecipeMeta {
+  recipe: string;
+  date: Date;
+}
 
 export default Recipe;

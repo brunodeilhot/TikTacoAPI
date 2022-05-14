@@ -1,32 +1,17 @@
-import Recipe from "../models/Recipe";
-import User from "../models/User";
-
-interface Iingredients {
-  name: string;
-  quantity: string;
-}
-
-interface IUserMeta {
-  user: string;
-  date: Date;
-}
-
-interface IRecipeMeta {
-  recipe: string;
-  date: Date;
-}
+import Recipe, { IIngredients, IRecipe, IRecipeMeta } from "../models/Recipe";
+import User, { IUserMeta } from "../models/User";
 
 export const create = async (
   title: string,
   picture: string,
   servings: number,
   time: number,
-  ingredients: Array<Iingredients>,
-  steps: Array<string>,
+  ingredients: IIngredients[],
+  steps: string[],
   user: string,
   description?: string,
-  diet?: Array<string>
-) => {
+  diet?: string[]
+): Promise<IRecipe> => {
   const userExists = await User.findById(user);
 
   if (userExists === null) throw new Error("User invalid");
@@ -50,12 +35,14 @@ export const update = async (
   picture?: string,
   servings?: number,
   time?: number,
-  ingredients?: Array<Iingredients>,
-  steps?: Array<string>,
+  ingredients?: IIngredients[],
+  steps?: string[],
   description?: string,
-  diet?: Array<string>
-) => {
-  const recipe: any = await Recipe.findById(id);
+  diet?: string[]
+): Promise<IRecipe> => {
+  const recipe = await Recipe.findById(id);
+
+  if (recipe === null) throw new Error("Bad Request");
 
   recipe.title = title !== undefined ? title : recipe.title;
   recipe.picture = picture !== undefined ? picture : recipe.picture;
@@ -67,26 +54,41 @@ export const update = async (
   recipe.description =
     description !== undefined ? description : recipe.description;
   recipe.diet = diet !== undefined ? diet : recipe.diet;
-  recipe.edited_at = Date.now();
+  recipe.edited_at = new Date();
 
   await recipe.save();
   return recipe;
 };
 
-export const findByUser = async (userId: string, limit: number) => {
+export const findByUser = async (
+  userId: string,
+  limit: number
+): Promise<IRecipe[]> => {
   const recipes = await Recipe.find({ user: userId })
     .select(["picture", "meta.views"])
     .limit(limit)
     .sort("-created_at");
 
-  recipes.forEach((recipe) => (recipe.meta.views = recipe.meta.views.length));
+  recipes.forEach((recipe) => {
+    recipe.meta.totalViews = recipe.meta.views.length;
+    recipe.meta.views = [];
+  });
 
   return recipes;
 };
 
-export const feedRecipes = async (limit: number, user?: string) => {
-  const meta = user !== undefined ? await User.findById(user).select("meta.following") : null;
-  const followers = user !== undefined ? meta.meta.following.map((follower: IUserMeta) => follower.user) : null;
+export const feedRecipes = async (
+  limit: number,
+  user?: string
+): Promise<IRecipe[]> => {
+  const userMeta =
+    user !== undefined
+      ? await User.findById(user).select("meta.following")
+      : null;
+  const followers =
+    userMeta !== null
+      ? userMeta.meta.following.map((follower) => follower.user)
+      : null;
 
   const filter = user !== undefined ? { user: followers } : {};
 
@@ -97,14 +99,15 @@ export const feedRecipes = async (limit: number, user?: string) => {
     .sort("-created_at");
 
   recipes.forEach((recipe) => {
-    recipe.meta.likes = recipe.meta.likes.length;
+    recipe.meta.totalLikes = recipe.meta.likes.length;
+    recipe.meta.likes = [];
   });
 
   return recipes;
 };
 
-export const findById = async (id: string, userId: string) => {
-  const recipe: any = await Recipe.findById(id).populate(
+export const findById = async (id: string, userId: string): Promise<IRecipe> => {
+  const recipe = await Recipe.findById(id).populate(
     "user",
     "_id username"
   );
@@ -112,42 +115,19 @@ export const findById = async (id: string, userId: string) => {
   if (recipe === null) throw new Error("Bad Request");
 
   if (recipe.meta.views.findIndex((u: IUserMeta) => u.user === userId) === -1) {
-    recipe.meta.views.push({ user: userId, date: Date.now() });
+    recipe.meta.views.push({ user: userId, date: new Date() });
     recipe.save();
   }
 
-  const {
-    _id,
-    title,
-    description,
-    picture,
-    diet,
-    servings,
-    time,
-    ingredients,
-    steps,
-    deleted,
-    created_at,
-    user,
-    meta,
-  } = recipe;
+  const { user, meta } = recipe;
 
   return {
-    _id,
-    title,
-    description,
-    picture,
-    diet,
-    servings,
-    time,
-    ingredients,
-    steps,
-    deleted,
-    created_at,
-    user,
+    ...recipe,
     meta: {
-      totalLikes: user.id !== userId ? meta.likes.length : meta.likes,
+      totalLikes: meta.likes.length,
       totalViews: meta.views.length,
+      likes: user.id === userId ? meta.likes : [],
+      views: [],
     },
   };
 };
@@ -156,9 +136,9 @@ export const findById = async (id: string, userId: string) => {
   Meta data manipulation
 */
 
-export const addLike = async (id: string, userId: string) => {
-  const recipe: any = await Recipe.findById(id);
-  const user: any = await User.findById(userId);
+export const addLike = async (id: string, userId: string): Promise<void> => {
+  const recipe = await Recipe.findById(id);
+  const user = await User.findById(userId);
 
   if (user === null || recipe === null) {
     throw new Error("Bad Request");
@@ -171,14 +151,14 @@ export const addLike = async (id: string, userId: string) => {
     throw new Error("Recipe already liked");
   }
 
-  user.meta.rec_liked.push({ recipe: id, date: Date.now() });
+  user.meta.rec_liked.push({ recipe: id, date: new Date() });
   await user.save();
 
-  recipe.meta.likes.push({ user: userId, date: Date.now() });
+  recipe.meta.likes.push({ user: userId, date: new Date() });
   await recipe.save();
 };
 
-export const removeLike = async (id: string, userId: string) => {
+export const removeLike = async (id: string, userId: string): Promise<void> => {
   const recipe: any = await Recipe.findById(id);
   const user: any = await User.findById(userId);
 

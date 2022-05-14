@@ -1,6 +1,7 @@
 import { Schema, model } from "mongoose";
+import { IRecipeMeta } from "./Recipe";
 
-const UserSchema = new Schema({
+const UserSchema: Schema = new Schema({
   name: {
     type: String,
     required: [true, "Name is required"],
@@ -51,33 +52,66 @@ const UserSchema = new Schema({
     default: false,
   },
   meta: {
-    rec_liked: [{
-      type: Object,
-      recipe: String,
-      date: Date
-    }],
-    rec_starred: [{
-      type: Object,
-      recipe: String,
-      date: Date
-    }],
-    followers: [{
-      type: Object,
-      user: String,
-      date: Date
-    }],
-    following: [{
-      type: Object,
-      user: String,
-      date: Date
-    }],
+    rec_liked: [
+      {
+        type: Object,
+        recipe: String,
+        date: Date,
+      },
+    ],
+    rec_starred: [
+      {
+        type: Object,
+        recipe: String,
+        date: Date,
+      },
+    ],
+    followers: [
+      {
+        type: Object,
+        user: String,
+        date: Date,
+      },
+    ],
+    following: [
+      {
+        type: Object,
+        user: String,
+        date: Date,
+      },
+    ],
   },
   deleted: {
     type: Boolean,
     default: false,
-  }
+  },
 });
 
-const User = model("User", UserSchema);
+const User = model<IUser>("User", UserSchema);
+
+export interface IUser {
+  id: string;
+  name: string;
+  email: string;
+  birthday?: Date;
+  username: string;
+  picture?: string;
+  bio?: string;
+  created_at: Date;
+  privateProfile: boolean;
+  PrivateLikes: boolean;
+  meta: {
+    rec_liked: IRecipeMeta[];
+    rec_starred: IRecipeMeta[];
+    followers: IUserMeta[];
+    following: IUserMeta[];
+  };
+  deleted: boolean;
+}
+
+export interface IUserMeta {
+  user: string;
+  date: Date;
+}
 
 export default User;
