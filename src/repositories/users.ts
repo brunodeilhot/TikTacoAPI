@@ -70,7 +70,7 @@ export const addFollower = async (
   const user = await User.findById(id);
   const followUser = await User.findById(userId);
 
-  if (user === null || followUser === null || user === followUser)
+  if (id === userId || user === null || followUser === null)
     throw new Error("Bad Request");
 
   if (
@@ -93,7 +93,7 @@ export const removeFollower = async (
   const user: any = await User.findById(id);
   const followUser: any = await User.findById(userId);
 
-  if (user === null || followUser === null || user === followUser)
+  if (id === userId || user === null || followUser === null)
     throw new Error("Bad Request");
 
   if (
