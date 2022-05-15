@@ -61,6 +61,14 @@ const RecipeSchema: Schema = new Schema({
         date: Date,
       },
     ],
+    totalLikes: {
+      type: Number,
+      default: 0,
+    },
+    totalViews: {
+      type: Number,
+      default: 0,
+    },
   },
   deleted: {
     type: Boolean,
@@ -89,8 +97,8 @@ export interface IRecipe {
   edited_at: Date | null;
   meta: {
     likes: IUserMeta[];
-    totalLikes: number;
     views: IUserMeta[];
+    totalLikes: number;
     totalViews: number;
   };
   deleted: boolean;

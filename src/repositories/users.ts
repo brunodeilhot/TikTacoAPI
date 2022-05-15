@@ -109,13 +109,13 @@ export const removeFollower = async (id: string, userId: string): Promise<void> 
   Meta Data manipulation
 */
 export const totalLikes = async (id: string): Promise<number> => {
-  const recipes = await Recipe.find({ user: id }).select(["_id", "meta.likes"]);
+  const recipes = await Recipe.find({ user: id }).select(["_id", "meta.totalLikes"]);
 
   if (recipes === null) throw new Error("Bad Request");
 
-  if (recipes.length === 1) return recipes[0].meta.likes.length;
+  if (recipes.length === 1) return recipes[0].meta.totalLikes;
 
-  return recipes.reduce((acc, recipe) => acc + recipe.meta.likes.length, 0);
+  return recipes.reduce((acc, recipe) => acc + recipe.meta.totalLikes, 0);
 };
 
 export const addStar = async (id: string, recipeId: string): Promise<void> => {
@@ -130,7 +130,7 @@ export const addStar = async (id: string, recipeId: string): Promise<void> => {
   )
     throw new Error("Recipe already starred");
 
-  user.meta.rec_starred.push({ recipe: recipeId, date: Date.now() });
+  user.meta.rec_starred.push({ recipe: recipeId, date: new Date() });
   await user.save();
 };
 

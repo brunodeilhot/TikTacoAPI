@@ -40,7 +40,7 @@ export const update = async (
   description?: string,
   diet?: string[]
 ): Promise<IRecipe> => {
-  const recipe = await Recipe.findById(id);
+  const recipe = await Recipe.findById(id).select("-meta");
 
   if (recipe === null) throw new Error("Bad Request");
 
@@ -63,73 +63,78 @@ export const update = async (
 export const findByUser = async (
   userId: string,
   limit: number
-): Promise<IRecipe[]> => {
-  const recipes = await Recipe.find({ user: userId })
-    .select(["picture", "meta.views"])
+): Promise<IRecipe[]> =>
+  Recipe.find({ user: userId })
+    .select(["picture", "meta.totalViews"])
     .limit(limit)
     .sort("-created_at");
-
-  recipes.forEach((recipe) => {
-    recipe.meta.totalViews = recipe.meta.views.length;
-    recipe.meta.views = [];
-  });
-
-  return recipes;
-};
 
 export const feedRecipes = async (
   limit: number,
-  user?: string
+  user: string | null
 ): Promise<IRecipe[]> => {
+  console.log(user);
+
   const userMeta =
-    user !== undefined
-      ? await User.findById(user).select("meta.following")
-      : null;
+    user === null
+      ? null
+      : await User.findById(user).select("meta.following");
+
+  console.log(userMeta);
+
   const followers =
-    userMeta !== null
-      ? userMeta.meta.following.map((follower) => follower.user)
-      : null;
+    userMeta === null
+      ? null
+      : userMeta.meta.following.map((follower) => follower.user);
 
-  const filter = user !== undefined ? { user: followers } : {};
+  console.log(userMeta);
 
-  const recipes = await Recipe.find(filter)
-    .select(["_id", "title", "picture", "meta.likes"])
+  const filter = followers === null ? {} : { user: followers };
+
+  console.log(filter);
+
+  return Recipe.find(filter)
+    .select(["_id", "title", "picture", "meta.totalLikes"])
     .populate("user", "_id picture username")
     .limit(limit)
     .sort("-created_at");
-
-  recipes.forEach((recipe) => {
-    recipe.meta.totalLikes = recipe.meta.likes.length;
-    recipe.meta.likes = [];
-  });
-
-  return recipes;
 };
 
-export const findById = async (id: string, userId: string): Promise<IRecipe> => {
-  const recipe = await Recipe.findById(id).populate(
-    "user",
-    "_id username"
-  );
+export const findById = async (
+  id: string,
+  userId: string
+): Promise<IRecipe> => {
+  const recipePublic = await Recipe.findById(id)
+    .select(["-meta.views", "-meta.likes"])
+    .populate("user", "_id username");
+
+  if (recipePublic === null) throw new Error("Bad Request");
+
+  addView(id, userId);
+
+  if (recipePublic.user.id !== userId) {
+    return recipePublic;
+  }
+
+  const recipePrivate = await Recipe.findById(id)
+    .select("-meta.views")
+    .populate("user", "_id username");
+
+  if (recipePrivate === null) throw new Error("Bad Request");
+
+  return recipePrivate;
+};
+
+const addView = async (id: string, userId: string) => {
+  const recipe = await Recipe.findById(id).select("meta");
 
   if (recipe === null) throw new Error("Bad Request");
 
   if (recipe.meta.views.findIndex((u: IUserMeta) => u.user === userId) === -1) {
     recipe.meta.views.push({ user: userId, date: new Date() });
+    recipe.meta.totalViews = recipe.meta.totalViews + 1;
     recipe.save();
   }
-
-  const { user, meta } = recipe;
-
-  return {
-    ...recipe,
-    meta: {
-      totalLikes: meta.likes.length,
-      totalViews: meta.views.length,
-      likes: user.id === userId ? meta.likes : [],
-      views: [],
-    },
-  };
 };
 
 /*
@@ -155,6 +160,7 @@ export const addLike = async (id: string, userId: string): Promise<void> => {
   await user.save();
 
   recipe.meta.likes.push({ user: userId, date: new Date() });
+  recipe.meta.totalLikes = recipe.meta.totalLikes + 1;
   await recipe.save();
 };
 
@@ -179,6 +185,7 @@ export const removeLike = async (id: string, userId: string): Promise<void> => {
 
   const k = recipe.meta.likes.findIndex((u: IUserMeta) => u.user === userId);
   recipe.meta.likes.splice(k, 1);
+  recipe.meta.totalLikes = recipe.meta.totalLikes - 1;
   await recipe.save();
 };
 
