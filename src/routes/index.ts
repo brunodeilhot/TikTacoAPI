@@ -6,7 +6,7 @@ import recipes from "./recipe";
 
 const router = Router();
 
-router.use(urlVerification);
+// router.use(urlVerification);
 
 router.get("/", apiDocs);
 

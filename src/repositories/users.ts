@@ -73,17 +73,25 @@ export const addFollower = async (
   if (id === userId || user === null || followUser === null)
     throw new Error("Bad Request");
 
-  if (
-    user.meta.following.findIndex((u: IUserMeta) => u.user === userId) !== -1 ||
-    followUser.meta.followers.findIndex((u: IUserMeta) => u.user === id) !== -1
-  )
+  const followingIndex = user.meta.following.findIndex(
+    (u: IUserMeta) => u.user === userId
+  );
+  const followerIndex = followUser.meta.followers.findIndex(
+    (u: IUserMeta) => u.user === id
+  );
+
+  if (followingIndex !== -1 && followerIndex !== -1)
     throw new Error("User already followed");
 
-  user.meta.following.push({ user: userId, date: new Date() });
-  user.save();
+  if (followingIndex === -1) {
+    user.meta.following.push({ user: userId, date: new Date() });
+    user.save();
+  }
 
-  followUser.meta.followers.push({ user: id, date: new Date() });
-  followUser.save();
+  if (followerIndex === -1) {
+    followUser.meta.followers.push({ user: id, date: new Date() });
+    followUser.save();
+  }
 };
 
 export const removeFollower = async (
@@ -96,21 +104,25 @@ export const removeFollower = async (
   if (id === userId || user === null || followUser === null)
     throw new Error("Bad Request");
 
-  if (
-    user.meta.following.findIndex((u: IUserMeta) => u.user === userId) === -1 ||
-    followUser.meta.followers.findIndex((u: IUserMeta) => u.user === id) === -1
-  )
-    throw new Error("User not followed");
-
-  const i = user.meta.following.findIndex((u: IUserMeta) => u.user === userId);
-  user.meta.following.splice(i, 1);
-  user.save();
-
-  const k = followUser.meta.followers.findIndex(
+  const followingIndex = user.meta.following.findIndex(
+    (u: IUserMeta) => u.user === userId
+  );
+  const followerIndex = followUser.meta.followers.findIndex(
     (u: IUserMeta) => u.user === id
   );
-  followUser.meta.followers.splice(k, 1);
-  followUser.save();
+
+  if (followingIndex === -1 && followerIndex === -1)
+    throw new Error("User not followed");
+
+  if (followingIndex !== -1) {
+    user.meta.following.splice(followingIndex, 1);
+    user.save();
+  }
+
+  if (followerIndex !== -1) {
+    followUser.meta.followers.splice(followerIndex, 1);
+    followUser.save();
+  }
 };
 
 /*

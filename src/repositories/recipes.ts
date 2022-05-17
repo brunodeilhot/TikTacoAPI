@@ -71,27 +71,14 @@ export const findByUser = async (
 
 export const feedRecipes = async (
   limit: number,
-  user: string | null
+  userId: string
 ): Promise<IRecipe[]> => {
-  console.log(user);
+  const userMeta = await User.findById(userId).select("meta.following");
 
-  const userMeta =
-    user === null
-      ? null
-      : await User.findById(user).select("meta.following");
-
-  console.log(userMeta);
-
-  const followers =
-    userMeta === null
-      ? null
-      : userMeta.meta.following.map((follower) => follower.user);
-
-  console.log(userMeta);
-
-  const filter = followers === null ? {} : { user: followers };
-
-  console.log(filter);
+  const filter =
+    userMeta !== null
+      ? { user: userMeta.meta.following.map((follower) => follower.user) }
+      : {};
 
   return Recipe.find(filter)
     .select(["_id", "title", "picture", "meta.totalLikes"])
@@ -149,19 +136,27 @@ export const addLike = async (id: string, userId: string): Promise<void> => {
     throw new Error("Bad Request");
   }
 
-  if (
-    user.meta.rec_liked.findIndex((r: IRecipeMeta) => r.recipe === id) !== -1 ||
-    recipe.meta.likes.findIndex((u: IUserMeta) => u.user === userId) !== -1
-  ) {
+  const recipeIndex = user.meta.rec_liked.findIndex(
+    (r: IRecipeMeta) => r.recipe === id
+  );
+  const userIndex = recipe.meta.likes.findIndex(
+    (u: IUserMeta) => u.user === userId
+  );
+
+  if (recipeIndex !== -1 && userIndex !== -1) {
     throw new Error("Recipe already liked");
   }
 
-  user.meta.rec_liked.push({ recipe: id, date: new Date() });
-  await user.save();
+  if (recipeIndex === -1) {
+    user.meta.rec_liked.push({ recipe: id, date: new Date() });
+    await user.save();
+  }
 
-  recipe.meta.likes.push({ user: userId, date: new Date() });
-  recipe.meta.totalLikes = recipe.meta.totalLikes + 1;
-  await recipe.save();
+  if (userIndex === -1) {
+    recipe.meta.likes.push({ user: userId, date: new Date() });
+    recipe.meta.totalLikes = recipe.meta.likes.length;
+    await recipe.save();
+  }
 };
 
 export const removeLike = async (id: string, userId: string): Promise<void> => {
@@ -172,21 +167,27 @@ export const removeLike = async (id: string, userId: string): Promise<void> => {
     throw new Error("Bad Request");
   }
 
-  if (
-    user.meta.rec_liked.findIndex((r: IRecipeMeta) => r.recipe === id) === -1 ||
-    recipe.meta.likes.findIndex((u: IUserMeta) => u.user === userId) === -1
-  ) {
+  const recipeIndex = user.meta.rec_liked.findIndex(
+    (r: IRecipeMeta) => r.recipe === id
+  );
+  const userIndex = recipe.meta.likes.findIndex(
+    (u: IUserMeta) => u.user === userId
+  );
+
+  if (recipeIndex === -1 && userIndex === -1) {
     throw new Error("Recipe not liked");
   }
 
-  const i = user.meta.rec_liked.findIndex((r: IRecipeMeta) => r.recipe === id);
-  user.meta.rec_liked.splice(i, 1);
-  await user.save();
+  if (recipeIndex !== -1) {
+    user.meta.rec_liked.splice(recipeIndex, 1);
+    await user.save();
+  }
 
-  const k = recipe.meta.likes.findIndex((u: IUserMeta) => u.user === userId);
-  recipe.meta.likes.splice(k, 1);
-  recipe.meta.totalLikes = recipe.meta.totalLikes - 1;
-  await recipe.save();
+  if (userIndex !== -1) {
+    recipe.meta.likes.splice(userIndex, 1);
+    recipe.meta.totalLikes = recipe.meta.likes.length;
+    await recipe.save();
+  }
 };
 
 const methods = {
