@@ -69,6 +69,33 @@ export const findByUser = async (
     .limit(limit)
     .sort("-created_at");
 
+export const findByUserMeta = async (
+  userId: string,
+  meta: string,
+  limit: number
+): Promise<IRecipe[]> => {
+  const userMeta = await User.findById(userId).select([
+    "meta.rec_liked",
+    "meta.rec_starred",
+  ]);
+
+  if (userMeta === null) throw new Error("Bad Request");
+
+  const { rec_liked, rec_starred } = userMeta.meta;
+
+  const filter =
+    meta === "likes"
+      ? rec_liked.map((recipe) => recipe.recipe)
+      : rec_starred.map((recipe) => recipe.recipe);
+
+  console.log(meta, filter);
+
+  return Recipe.find({ _id: filter })
+    .select(["picture", "meta.totalViews"])
+    .limit(limit)
+    .sort("-created_at");
+};
+
 export const feedRecipes = async (
   limit: number,
   userId: string
