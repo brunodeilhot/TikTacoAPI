@@ -3,9 +3,10 @@ import { findById } from "../../repositories/recipes";
 
 export default async (req: Request, res: Response) => {
   const id = req.params.id;
+  const ip =  req.ip;
   const userId = req.params.userId;
   
-  const recipe = await findById(id, userId)
+  const recipe = await findById(id, ip, userId)
     .then((response) => {
       return { status: 200, data: response };
     })

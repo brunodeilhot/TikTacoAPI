@@ -31,11 +31,14 @@ export const update = async (
 
   if (user === null) throw new Error("Bad Request");
 
-  user.username = username !== undefined ? username : user.username;
   user.name = name !== undefined ? name : user.name;
   user.birthday = birthday !== undefined ? birthday : user.birthday;
   user.picture = picture !== undefined ? picture : user.picture;
   user.bio = bio !== undefined ? bio : user.bio;
+
+  if (username && username !== user.name) {
+    user.name = username;
+  }
 
   await user.save();
   return user;

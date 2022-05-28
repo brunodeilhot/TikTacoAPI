@@ -21,7 +21,7 @@ const RecipeSchema: Schema = new Schema({
     unique: "File name already in use",
     required: [true, "Picture is required"],
   },
-  diet: [{ type: String, enum: ["gf", "df", "v", "vv", "k"] }],
+  diet: [{ type: String, enum: ["GF", "DF", "V", "VE", "K"] }],
   servings: {
     type: Number,
     required: [true, "Servings are required"],

@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import routes from "./routes/index";
+import path from "path";
 
 dotenv.config();
 
@@ -11,15 +12,15 @@ const port = process.env.PORT || 3000;
 
 const corsOptions = {
   origin: "*",
-  optionsSuccessStatus: 200
-}
+  optionsSuccessStatus: 200,
+};
 
-app.use(cors(corsOptions))
+app.use(cors(corsOptions));
 app.use(express.json());
+app.use("/uploads", express.static(path.join(__dirname, "public")));
 app.use(routes);
 
 const database = process.env.MONGODB_URL || "";
-
 
 mongoose.connect(database);
 

@@ -28,11 +28,11 @@ const UserSchema: Schema = new Schema({
   picture: {
     type: String,
     match: [
-      /([A-Z0-9\s_\\.\-\(\):])+(.jpe?g|.png|.gif)$/i,
+      /([A-Z0-9\s_\\.\-\(\):])+(.jpe?g|.png|.gif|.svg)$/i,
       "File type is invalid",
     ],
     unique: true,
-    default: null,
+    default: "taco-placeholder.svg",
   },
   bio: {
     type: String,

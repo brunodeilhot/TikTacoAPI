@@ -17,7 +17,7 @@ const router = Router();
 router.post("/create", create);
 router.put("/update/:id", update);
 
-router.get("/find/id/:id/:userId", findById);
+router.get("/find/id/:id/:userId?", findById);
 router.get("/find/user/:userId/:limit", findByUser);
 router.get("/find/user/:userId/meta/:meta/:limit", findByUserMeta);
 

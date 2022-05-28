@@ -88,8 +88,6 @@ export const findByUserMeta = async (
       ? rec_liked.map((recipe) => recipe.recipe)
       : rec_starred.map((recipe) => recipe.recipe);
 
-  console.log(meta, filter);
-
   return Recipe.find({ _id: filter })
     .select(["picture", "meta.totalViews"])
     .limit(limit)
@@ -116,7 +114,8 @@ export const feedRecipes = async (
 
 export const findById = async (
   id: string,
-  userId: string
+  ip: string,
+  userId: string | undefined
 ): Promise<IRecipe> => {
   const recipePublic = await Recipe.findById(id)
     .select(["-meta.views", "-meta.likes"])
@@ -124,7 +123,7 @@ export const findById = async (
 
   if (recipePublic === null) throw new Error("Bad Request");
 
-  addView(id, userId);
+  addView(id, ip);
 
   if (recipePublic.user.id !== userId) {
     return recipePublic;
@@ -139,13 +138,13 @@ export const findById = async (
   return recipePrivate;
 };
 
-const addView = async (id: string, userId: string) => {
+const addView = async (id: string, ip: string) => {
   const recipe = await Recipe.findById(id).select("meta");
 
   if (recipe === null) throw new Error("Bad Request");
 
-  if (recipe.meta.views.findIndex((u: IUserMeta) => u.user === userId) === -1) {
-    recipe.meta.views.push({ user: userId, date: new Date() });
+  if (recipe.meta.views.findIndex((u: IUserMeta) => u.user === ip) === -1) {
+    recipe.meta.views.push({ user: ip, date: new Date() });
     recipe.meta.totalViews = recipe.meta.totalViews + 1;
     recipe.save();
   }
