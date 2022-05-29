@@ -7,12 +7,19 @@ import uploads from "./uploads";
 
 const router = Router();
 
-// router.use(urlVerification);
+/**
+ * Verification of hostname and api key
+ */
+router.use(urlVerification);
 
 router.get("/", apiDocs);
 
 router.use("/user", user);
 router.use("/recipes", recipes);
+
+/**
+ * Manages image uploading and file storage
+ */
 router.use("/uploads", uploads);
 
 export default router;

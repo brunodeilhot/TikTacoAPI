@@ -4,7 +4,7 @@ const apiDocs = async (_req: Request, res: Response) => {
   const info = {
     version: "1.0.0",
     name: "TikTacoAPI",
-    endpoints: ["user", "recipes"],
+    endpoints: ["user", "recipes", "uploads"],
   };
   return res.json(info);
 };

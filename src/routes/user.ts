@@ -25,6 +25,7 @@ router.post("/followers/:id/add/:userId", addFollower);
 router.delete("/followers/:id/remove/:userId", removeFollower);
 
 router.get("/meta/likes/total/:id", totalLikes);
+
 router.post("/meta/stars/:id/add/:recipeId", addStar);
 router.delete("/meta/stars/:id/remove/:recipeId", removeStar);
 
