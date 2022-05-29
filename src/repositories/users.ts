@@ -1,6 +1,10 @@
 import Recipe, { IRecipeMeta } from "../models/Recipe";
 import User, { IUser, IUserMeta } from "../models/User";
 
+/**
+ * Function called when creating a user.
+ * @returns The promise of a user object.
+ */
 export const create = async (
   name: string,
   email: string,
@@ -19,6 +23,10 @@ export const create = async (
   });
 };
 
+/**
+ * Function called when updating a user object. The only required parameter is the id.
+ * @returns The promise of a user object.
+ */
 export const update = async (
   id: string,
   username?: string,
@@ -44,6 +52,11 @@ export const update = async (
   return user;
 };
 
+/**
+ * Find a user by the given email.
+ * @param email 
+ * @returns The promise of a user object.
+ */
 export const findByEmail = async (email: string): Promise<IUser> => {
   const user = await User.findOne({ email });
 
@@ -52,6 +65,11 @@ export const findByEmail = async (email: string): Promise<IUser> => {
   return user;
 };
 
+/**
+ * Function called when user data is needed without sensitive information.
+ * @param id User id.
+ * @returns The promise of a user object without email, birthday, created date or meta data.
+ */
 export const findById = async (id: string): Promise<IUser> => {
   const user = await User.findById(id).select([
     "-email",
@@ -66,6 +84,11 @@ export const findById = async (id: string): Promise<IUser> => {
   return user;
 };
 
+/**
+ * Function called when adding a new follower.
+ * @param id User id requesting the addition of a new follower.
+ * @param userId User id of the user to be followed.
+ */
 export const addFollower = async (
   id: string,
   userId: string
@@ -97,6 +120,11 @@ export const addFollower = async (
   }
 };
 
+/**
+ * Function called when removing a follower.
+ * @param id User id requesting the removal of a follower.
+ * @param userId User id of the user to be removed.
+ */
 export const removeFollower = async (
   id: string,
   userId: string
@@ -128,9 +156,11 @@ export const removeFollower = async (
   }
 };
 
-/*
-  Meta Data manipulation
-*/
+/**
+ * Function called when the data of a user's total received likes is needed.
+ * @param id User id.
+ * @returns The promise of the number of total received likes.
+ */
 export const totalLikes = async (id: string): Promise<number> => {
   const recipes = await Recipe.find({ user: id }).select([
     "_id",
@@ -144,6 +174,11 @@ export const totalLikes = async (id: string): Promise<number> => {
   return recipes.reduce((acc, recipe) => acc + recipe.meta.totalLikes, 0);
 };
 
+/**
+ * Function called when a user wants to add a recipe to its favorites (starred) list.
+ * @param id User id.
+ * @param recipeId Recipe id.
+ */
 export const addStar = async (id: string, recipeId: string): Promise<void> => {
   const user: any = await User.findById(id);
 
@@ -160,6 +195,11 @@ export const addStar = async (id: string, recipeId: string): Promise<void> => {
   await user.save();
 };
 
+/**
+ * Function called when a user wants to remove a recipe from its favorites (starred) list.
+ * @param id User id.
+ * @param recipeId Recipe id.
+ */
 export const removeStar = async (
   id: string,
   recipeId: string

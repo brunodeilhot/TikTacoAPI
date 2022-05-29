@@ -1,6 +1,10 @@
 import Recipe, { IIngredients, IRecipe, IRecipeMeta } from "../models/Recipe";
 import User, { IUserMeta } from "../models/User";
 
+/**
+ * Function called when creating a new recipe.
+ * @return The promise of a recipe object.
+ */
 export const create = async (
   title: string,
   picture: string,
@@ -29,6 +33,11 @@ export const create = async (
   });
 };
 
+/**
+ * Function called when updating a recipe object.
+ * The only required parameter is the recipe id.
+ * @return The promise of a recipe object.
+ */
 export const update = async (
   id: string,
   title?: string,
@@ -44,22 +53,29 @@ export const update = async (
 
   if (recipe === null) throw new Error("Bad Request");
 
-  recipe.title = title !== undefined ? title : recipe.title;
-  recipe.picture = picture !== undefined ? picture : recipe.picture;
-  recipe.servings = servings !== undefined ? servings : recipe.servings;
-  recipe.time = time !== undefined ? time : recipe.time;
-  recipe.ingredients =
-    ingredients !== undefined ? ingredients : recipe.ingredients;
-  recipe.steps = steps !== undefined ? steps : recipe.steps;
-  recipe.description =
-    description !== undefined ? description : recipe.description;
-  recipe.diet = diet !== undefined ? diet : recipe.diet;
+  recipe.title = title ?? recipe.title;
+  recipe.picture = picture ?? recipe.picture;
+  recipe.servings = servings ?? recipe.servings;
+  recipe.time = time ?? recipe.time;
+  recipe.ingredients = ingredients ?? recipe.ingredients;
+  recipe.steps = steps ?? recipe.steps;
+  recipe.description = description ?? recipe.description;
+  recipe.diet = diet ?? recipe.diet;
   recipe.edited_at = new Date();
 
   await recipe.save();
   return recipe;
 };
 
+/**
+ * Function called when you need to find all recipes of a user id for a feed which
+ * only required limited data on said recipes.
+ * @param userId
+ * @param limit The number of recipes to return.
+ * @returns The promise of an array of recipe objects which contains
+ * only id, picture and the number of total views. Array is return in descending
+ * order of creation date.
+ */
 export const findByUser = async (
   userId: string,
   limit: number
@@ -69,6 +85,16 @@ export const findByUser = async (
     .limit(limit)
     .sort("-created_at");
 
+/**
+ * Function called when an array of recipes of a user is needed but filtered
+ * by type of meta data.
+ * @param userId
+ * @param meta Meta data to be filtered (likes or stars)
+ * @param limit The number of recipes to return.
+ * @returns The promise of an array of recipe objects which contains limited data
+ * of recipe id, picture and total views filtered by type of meta data. Sorted
+ * in descending order of creation date.
+ */
 export const findByUserMeta = async (
   userId: string,
   meta: string,
@@ -94,6 +120,13 @@ export const findByUserMeta = async (
     .sort("-created_at");
 };
 
+/**
+ * Function called when you need an array of recipes with user information attached.
+ * @param limit Number of recipes to return.
+ * @param userId
+ * @returns Promise of an array of recipe objects which contains id, title, picture, total likes
+ * and user id, picture and username. Sorted in descending order of creation date.
+ */
 export const feedRecipes = async (
   limit: number,
   userId: string
@@ -112,10 +145,20 @@ export const feedRecipes = async (
     .sort("-created_at");
 };
 
+/**
+ * Function called when all recipe information is needed. Full meta information is only
+ * returned if a user id is provided and it matches the user id to which the recipe belongs.
+ * Everytime this function is called, it also calls an addView function, which adds a view
+ * to the meta data only if the user's ip isn't already in the view meta data array.
+ * @param id Recipe id.
+ * @param ip User ip address.
+ * @param userId (optional) User id.
+ * @returns The promise of a recipe object.
+ */
 export const findById = async (
   id: string,
   ip: string,
-  userId: string | undefined
+  userId?: string
 ): Promise<IRecipe> => {
   const recipePublic = await Recipe.findById(id)
     .select(["-meta.views", "-meta.likes"])
@@ -150,10 +193,11 @@ const addView = async (id: string, ip: string) => {
   }
 };
 
-/*
-  Meta data manipulation
-*/
-
+/**
+ * Function called to add a like to a recipe.
+ * @param id
+ * @param userId
+ */
 export const addLike = async (id: string, userId: string): Promise<void> => {
   const recipe = await Recipe.findById(id);
   const user = await User.findById(userId);
@@ -185,6 +229,11 @@ export const addLike = async (id: string, userId: string): Promise<void> => {
   }
 };
 
+/**
+ * Function called when removing a like from a recipe.
+ * @param id
+ * @param userId
+ */
 export const removeLike = async (id: string, userId: string): Promise<void> => {
   const recipe: any = await Recipe.findById(id);
   const user: any = await User.findById(userId);
