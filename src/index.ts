@@ -10,12 +10,7 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT;
 
-const corsOptions = {
-  origin: process.env.ORIGIN,
-  optionsSuccessStatus: 200,
-};
-
-app.use(cors(corsOptions));
+app.use(cors());
 app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "public")));
 app.use(routes);
