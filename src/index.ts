@@ -25,7 +25,11 @@ if (!fs.existsSync(path.join(__dirname, "public/recipes"))) {
 
 app.use("/images", express.static(path.join(__dirname, "public")));
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "*",
+  })
+);
 app.use(express.json());
 app.use(routes);
 
