@@ -4,11 +4,20 @@ import cors from "cors";
 import mongoose from "mongoose";
 import routes from "./routes/index";
 import path from "path";
+import fs from "fs";
 
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT;
+
+if (!fs.existsSync("/public/user")) {
+  fs.mkdirSync("/public/user");
+}
+
+if (!fs.existsSync("/public/recipes")) {
+  fs.mkdirSync("/public/recipes");
+}
 
 app.use("/images", express.static(path.join(__dirname, "public")));
 
