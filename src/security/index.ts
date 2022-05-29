@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 
 const urlVerification: RequestHandler = async (req, res, next) => {
-  if (req.headers.host !== process.env.REQ_HOST) {
+  if (req.headers.origin !== process.env.REQ_HOST) {
     return res.status(403).json("Access denied");
   }
 
