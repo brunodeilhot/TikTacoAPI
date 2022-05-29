@@ -16,7 +16,7 @@ if (!fs.existsSync(path.join(__dirname, "public"))) {
 }
 
 if (!fs.existsSync(path.join(__dirname, "public/users"))) {
-  fs.mkdirSync(path.join(__dirname, "public/user"));
+  fs.mkdirSync(path.join(__dirname, "public/users"));
 }
 
 if (!fs.existsSync(path.join(__dirname, "public/recipes"))) {
