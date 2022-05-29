@@ -12,7 +12,7 @@ const port = process.env.PORT;
 
 app.use(cors());
 app.use(express.json());
-app.use("/uploads", express.static(path.join(__dirname, "public")));
+app.use("/images", express.static(path.join(__dirname, "public")));
 app.use(routes);
 
 const database = process.env.MONGODB_URL;
