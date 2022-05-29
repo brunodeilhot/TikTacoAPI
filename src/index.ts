@@ -11,12 +11,16 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT;
 
-if (!fs.existsSync("/public/user")) {
-  fs.mkdirSync("/public/user");
+if (!fs.existsSync(path.join(__dirname, "public"))) {
+  fs.mkdirSync(path.join(__dirname, "public"));
 }
 
-if (!fs.existsSync("/public/recipes")) {
-  fs.mkdirSync("/public/recipes");
+if (!fs.existsSync(path.join(__dirname, "public/users"))) {
+  fs.mkdirSync(path.join(__dirname, "public/user"));
+}
+
+if (!fs.existsSync(path.join(__dirname, "public/recipes"))) {
+  fs.mkdirSync(path.join(__dirname, "public/recipes"));
 }
 
 app.use("/images", express.static(path.join(__dirname, "public")));

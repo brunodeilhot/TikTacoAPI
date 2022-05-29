@@ -1,14 +1,10 @@
 import { Router } from "express";
-import fs from "fs";
+import path from "path";
 import multer from "multer";
 
 const recipeStorage = multer.diskStorage({
   destination: (_req, _file, cb) => {
-    const directory = "public/recipes";
-    if (!fs.existsSync(directory)) {
-      fs.mkdirSync(directory);
-    }
-    cb(null, directory);
+    cb(null, path.join(__dirname, "public/recipes"));
   },
   filename: (_req, file, cb) => {
     cb(null, file.originalname);
@@ -17,11 +13,7 @@ const recipeStorage = multer.diskStorage({
 
 const profileStorage = multer.diskStorage({
   destination: (_req, _file, cb) => {
-    const directory = "public/users";
-    if (!fs.existsSync(directory)) {
-      fs.mkdirSync(directory);
-    }
-    cb(null, directory);
+    cb(null, path.join(__dirname, "public/users"));
   },
   filename: (_req, file, cb) => {
     cb(null, file.originalname);
