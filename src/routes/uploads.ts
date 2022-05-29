@@ -4,7 +4,7 @@ import multer from "multer";
 
 const recipeStorage = multer.diskStorage({
   destination: (_req, _file, cb) => {
-    cb(null, path.join(__dirname, "dist/public/recipes"));
+    cb(null, path.join(__dirname, "public/recipes"));
   },
   filename: (_req, file, cb) => {
     cb(null, file.originalname);
@@ -13,7 +13,7 @@ const recipeStorage = multer.diskStorage({
 
 const profileStorage = multer.diskStorage({
   destination: (_req, _file, cb) => {
-    cb(null, path.join(__dirname, "dist/public/users"));
+    cb(null, path.join(__dirname, "public/users"));
   },
   filename: (_req, file, cb) => {
     cb(null, file.originalname);
