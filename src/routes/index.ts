@@ -10,7 +10,7 @@ const router = Router();
 /**
  * Verification of hostname and api key
  */
-router.use(urlVerification);
+// router.use(urlVerification);
 
 router.get("/", apiDocs);
 
