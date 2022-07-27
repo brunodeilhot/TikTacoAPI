@@ -10,14 +10,17 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT;
 
-const corsOptions = {
-  origin: process.env.ORIGIN,
-  optionsSuccessStatus: 200,
-};
+app.use("/images", express.static(path.join(__dirname, "public")));
 
-app.use(cors(corsOptions));
+app.use(
+  cors({
+    origin: "localhost",
+    methods: ['GET', 'PUT', 'POST', 'DELETE'],
+    preflightContinue: false,
+    optionsSuccessStatus: 200
+  })
+);
 app.use(express.json());
-app.use("/uploads", express.static(path.join(__dirname, "public")));
 app.use(routes);
 
 const database = process.env.MONGODB_URL;
@@ -28,5 +31,6 @@ mongoose.connection.on("error", (err) =>
   console.log("[error]: Error connecting to database: " + err.messages)
 );
 mongoose.connection.once("open", () => {
+  console.log("[LOG]: DATABASE CONNECTION SUCCESSFUL");
   app.listen(port);
 });
