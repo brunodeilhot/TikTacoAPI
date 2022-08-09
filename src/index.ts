@@ -14,7 +14,7 @@ app.use("/images", express.static(path.join(__dirname, "public")));
 
 app.use(
   cors({
-    origin: "localhost",
+    origin: '*',
     methods: ['GET', 'PUT', 'POST', 'DELETE'],
     preflightContinue: false,
     optionsSuccessStatus: 200

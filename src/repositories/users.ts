@@ -39,14 +39,11 @@ export const update = async (
 
   if (user === null) throw new Error("Bad Request");
 
-  user.name = name !== undefined ? name : user.name;
-  user.birthday = birthday !== undefined ? birthday : user.birthday;
-  user.picture = picture !== undefined ? picture : user.picture;
-  user.bio = bio !== undefined ? bio : user.bio;
-
-  if (username && username !== user.name) {
-    user.name = username;
-  }
+  user.username = username ?? user.username;
+  user.name = name ?? user.name;
+  user.birthday = birthday ?? user.birthday;
+  user.picture = picture ?? user.picture;
+  user.bio = bio ?? user.bio;
 
   await user.save();
   return user;
@@ -54,7 +51,7 @@ export const update = async (
 
 /**
  * Find a user by the given email.
- * @param email 
+ * @param email
  * @returns The promise of a user object.
  */
 export const findByEmail = async (email: string): Promise<IUser> => {
