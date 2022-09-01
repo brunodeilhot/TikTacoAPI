@@ -157,7 +157,7 @@ export const feedRecipes = async (
  */
 export const findById = async (
   id: string,
-  ip: string,
+  ip: string | string[] | undefined,
   userId?: string
 ): Promise<IRecipe> => {
   const recipePublic = await Recipe.findById(id)
@@ -181,16 +181,14 @@ export const findById = async (
   return recipePrivate;
 };
 
-const addView = async (id: string, ip: string) => {
+const addView = async (id: string, ip: string | string[] | undefined) => {
   const recipe = await Recipe.findById(id).select("meta");
 
   if (recipe === null) throw new Error("Bad Request");
 
-  if (recipe.meta.views.findIndex((u: IUserMeta) => u.user === ip) === -1) {
-    recipe.meta.views.push({ user: ip, date: new Date() });
-    recipe.meta.totalViews = recipe.meta.totalViews + 1;
-    recipe.save();
-  }
+  recipe.meta.views.push({ user: ip?.toString() ?? "", date: new Date() });
+  recipe.meta.totalViews = recipe.meta.views.length + 1;
+  recipe.save();
 };
 
 /**

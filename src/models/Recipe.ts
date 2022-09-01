@@ -18,7 +18,6 @@ const RecipeSchema: Schema = new Schema({
       /([A-Z0-9\s_\\.\-\(\):])+(.jpe?g|.png|.gif)$/i,
       "File extension not allowed",
     ],
-    unique: "File name already in use",
     required: [true, "Picture is required"],
   },
   diet: [{ type: String, enum: ["GF", "DF", "V", "VE", "K"] }],

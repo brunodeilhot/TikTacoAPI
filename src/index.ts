@@ -10,16 +10,10 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT;
 
+app.use(cors());
+
 app.use("/images", express.static(path.join(__dirname, "public")));
 
-app.use(
-  cors({
-    origin: '*',
-    methods: ['GET', 'PUT', 'POST', 'DELETE'],
-    preflightContinue: false,
-    optionsSuccessStatus: 200
-  })
-);
 app.use(express.json());
 app.use(routes);
 
